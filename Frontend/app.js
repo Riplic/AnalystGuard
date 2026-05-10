@@ -127,3 +127,42 @@ function resetAll() {
         showModal("error", "Reset Error", "Failed to reset UI state.");
     }
 }
+
+/* =========================
+   PREDICT
+========================= */
+async function predict(event) {
+    const btn          = event?.target;
+    const originalText = btn?.innerText;
+
+    try {
+        const values = getValues(fields);
+        setLoading(btn, true, "Predicting...", originalText);
+
+        const res  = await fetch(`${API}/predict`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ values })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById("prediction").innerHTML = `
+            <div class="result-card">
+                <h3>${data.label}</h3>
+            </div>
+        `;
+
+        document.getElementById("probabilityBox").innerHTML = `
+            <div class="metric-grid">
+                <div class="metric">Approved: ${data.probability_approved}%</div>
+                <div class="metric">Rejected: ${data.probability_rejected}%</div>
+            </div>
+        `;
+
+    } catch (err) {
+        showModal("error", "Prediction Error", err.message);
+    } finally {
+        setLoading(btn, false, "", originalText || "Predict");
+    }
+}
