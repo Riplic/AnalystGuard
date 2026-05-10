@@ -414,3 +414,136 @@ function renderDatasetSummaryCharts(summary) {
     const card = document.getElementById("datasetSummaryCard");
     if (card) card.style.display = "block";
 }
+
+/* =========================
+   FLIP ANALYSIS (CORE)
+========================= */
+async function checkFlip(event) {
+    const btn          = event?.target;
+    const originalText = btn?.innerText;
+
+    try {
+        const original = getValues(fields);
+        const modified = getValues(modFields);
+
+        setLoading(btn, true, "Analyzing...", originalText);
+
+        // ── Fetch flip result ──────────────────────────────────────
+        const res  = await fetch(`${API}/flip`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ original, modified })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const featureNames = ["Age", "Income", "Credit", "Loan", "Years"];
+
+        /* ── Biggest change detector ─────────────────────────────── */
+        let biggest = { feature: "", value: 0 };
+
+        let table = `
+        <div class="comparison-card">
+            <h3>Before vs After Comparison</h3>
+            <table>
+                <tr>
+                    <th>Feature</th><th>Original</th><th>Modified</th><th>Change</th>
+                </tr>
+        `;
+
+        original.forEach((v, i) => {
+            const diff = modified[i] - v;
+            const abs  = Math.abs(diff);
+            if (abs > biggest.value) biggest = { feature: featureNames[i], value: abs };
+
+            table += `
+                <tr>
+                    <td>${featureNames[i]}</td>
+                    <td>${v}</td>
+                    <td>${modified[i]}</td>
+                    <td style="color:${diff >= 0 ? "green" : "red"}">
+                        ${diff > 0 ? "+" : ""}${diff}
+                    </td>
+                </tr>
+            `;
+        });
+
+        table += `</table></div>`;
+        document.getElementById("comparisonPanel").innerHTML = table;
+
+        /* ── Result panel ────────────────────────────────────────── */
+        document.getElementById("flipResult").innerHTML = `
+            <div class="result-card">
+                <div class="result-header">
+                    <div>
+                        <div class="result-title">Decision Result</div>
+                        <div class="result-subtitle">Explainable AI Output</div>
+                    </div>
+                    <div class="result-badge ${data.flip ? "bad" : "good"}">
+                        ${data.flip ? "FLIPPED" : "STABLE"}
+                    </div>
+                </div>
+
+                <div class="result-kpis">
+                    <div class="kpi-box">
+                        <div class="kpi-label">Original</div>
+                        <div class="kpi-value">${data.original_label}</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">Modified</div>
+                        <div class="kpi-value">${data.modified_label}</div>
+                    </div>
+                    <div class="kpi-box highlight">
+                        <div class="kpi-label">Change</div>
+                        <div class="kpi-value">${data.flip ? "YES" : "NO"}</div>
+                    </div>
+                </div>
+
+                <div class="result-insight">
+                    <div class="insight-title">Most Impactful Feature Change</div>
+                    <div class="insight-text">
+                        ${biggest.feature} changed the most (${biggest.value})
+                    </div>
+                </div>
+
+                <div class="result-insight">
+                    <div class="insight-title">SHAP Explanation</div>
+                    <div class="insight-text">${data.reason_text}</div>
+                </div>
+            </div>
+        `;
+
+        /* ── REQ #1 & #2: Feature impact charts ─────────────────── */
+        // Show the feature charts panel
+        const fcPanel = document.getElementById("featureChartsPanel");
+        if (fcPanel) fcPanel.style.display = "block";
+
+        // Original case SHAP (new field from updated /flip endpoint)
+        renderImpactChart(
+            "originalImpactChart",
+            "originalImpact",
+            data.original_top_features || [],
+            "Original SHAP Impact"
+        );
+
+        // Modified case SHAP
+        renderImpactChart(
+            "modifiedImpactChart",
+            "modifiedImpact",
+            data.top_features || [],
+            "Modified SHAP Impact"
+        );
+
+        // Before vs After probability bar
+        renderProbCompareChart(data.prob_before, data.prob_after);
+
+        setStatus("flipStatus", data.flip ? "Flip: YES" : "Flip: NO", data.flip ? "bad" : "good");
+
+    } catch (err) {
+        showModal("error", "Flip Error", err.message);
+    } finally {
+        setLoading(btn, false, "", originalText || "Analyze Decision");
+    }
+
+    document.getElementById("exportBtn").disabled = false;
+}
