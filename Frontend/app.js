@@ -274,3 +274,60 @@ function renderProbCompareChart(before, after) {
         }
     });
 }
+
+/**
+ * Renders the model performance bar chart.
+ * Shows Accuracy, Precision, Recall, F1 as percentage bars.
+ *
+ * @param {object} data - { accuracy, precision, recall, f1_score } (0–1 scale)
+ */
+function renderMetricsBarChart(data) {
+    destroyChart("metricsBar");
+
+    const ctx = document.getElementById("metricsBarChart");
+    if (!ctx) return;
+
+    const labels  = ["Accuracy", "Precision", "Recall", "F1 Score"];
+    const values  = [
+        +(data.accuracy  * 100).toFixed(2),
+        +(data.precision * 100).toFixed(2),
+        +(data.recall    * 100).toFixed(2),
+        +(data.f1_score  * 100).toFixed(2),
+    ];
+    const colors  = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981"];
+
+    charts.metricsBar = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label:           "Score (%)",
+                data:            values,
+                backgroundColor: colors,
+                borderRadius:    6,
+                barThickness:    50,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.parsed.y.toFixed(2)}%`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min:   0,
+                    max:   100,
+                    title: { display: true, text: "Score (%)" }
+                }
+            }
+        }
+    });
+
+    const wrapper = document.getElementById("metricsChartWrapper");
+    if (wrapper) wrapper.style.display = "block";
+}
