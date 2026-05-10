@@ -606,3 +606,39 @@ async function uploadCSV(event) {
         setLoading(btn, false, "", originalText || "Train Model");
     }
 }
+
+/* =========================
+   METRICS  (REQ #3)
+========================= */
+async function loadMetrics() {
+    const res  = await fetch(`${API}/metrics`);
+    const data = await res.json();
+
+    if (data.error) return;
+
+    // Text summary (existing)
+    document.getElementById("metricsBox").innerHTML = `
+        Accuracy: ${(data.accuracy  * 100).toFixed(2)}%<br>
+        Precision: ${(data.precision * 100).toFixed(2)}%<br>
+        Recall: ${(data.recall    * 100).toFixed(2)}%<br>
+        F1: ${(data.f1_score  * 100).toFixed(2)}%
+    `;
+
+    // NEW: Metrics bar chart
+    renderMetricsBarChart(data);
+}
+
+/* =========================
+   CONFUSION MATRIX
+========================= */
+async function loadConfusionMatrix() {
+    const res  = await fetch(`${API}/confusion-matrix`);
+    const data = await res.json();
+
+    if (data.error) return;
+
+    document.getElementById("tn").innerText = data.tn;
+    document.getElementById("fp").innerText = data.fp;
+    document.getElementById("fn").innerText = data.fn;
+    document.getElementById("tp").innerText = data.tp;
+}
