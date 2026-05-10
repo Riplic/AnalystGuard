@@ -44,3 +44,111 @@ function setStatus(id, text, type = "neutral") {
     el.className  = `status-badge ${type}`;
     el.innerText  = text;
 }
+
+/* =========================
+   REAL-TIME VALIDATION
+========================= */
+function setError(id, msg) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const errorBox = input.parentNode.querySelector(".error-text");
+    if (errorBox) errorBox.innerText = msg;
+    input.classList.add("error");
+}
+
+function clearError(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const errorBox = input.parentNode.querySelector(".error-text");
+    if (errorBox) errorBox.innerText = "";
+    input.classList.remove("error");
+}
+
+function attachValidation(list) {
+    list.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("input", () => {
+            const val = el.value.trim();
+            if (val === "")      { setError(id, "Required field");  return; }
+            if (isNaN(val))      { setError(id, "Must be numeric"); return; }
+            clearError(id);
+        });
+    });
+}
+
+attachValidation(fields);
+attachValidation(modFields);
+
+/* =========================
+   GET VALUES SAFE
+========================= */
+function getValues(list) {
+    return list.map(id => {
+        const el  = document.getElementById(id);
+        if (!el)  throw new Error(`Missing field: ${id}`);
+        const val = el.value.trim();
+        if (val === "")  { setError(id, "Required field");  throw new Error(`${id} required`); }
+        if (isNaN(val))  { setError(id, "Must be numeric"); throw new Error(`${id} must be numeric`); }
+        return Number(val);
+    });
+}
+
+/* =========================
+   SAMPLE DATA
+========================= */
+function useSample() {
+    document.getElementById("age").value    = 30;
+    document.getElementById("income").value = 45000;
+    document.getElementById("credit").value = 650;
+    document.getElementById("loan").value   = 20000;
+    document.getElementById("years").value  = 5;
+}
+
+/* =========================
+   RESET (FULL CLEAN STATE)
+========================= */
+function resetAll() {
+    try {
+        [...fields, ...modFields].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+        });
+
+        document.querySelectorAll(".error-text").forEach(e => e.innerText = "");
+        document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
+
+        ["prediction", "probabilityBox", "flipResult", "comparisonPanel", "datasetInfo", "metricsBox"]
+            .forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = "";
+            });
+
+        // Destroy all chart instances
+        Object.keys(charts).forEach(destroyChart);
+
+        // Hide chart panels
+        const fcPanel = document.getElementById("featureChartsPanel");
+        if (fcPanel) fcPanel.style.display = "none";
+
+        const dsCard = document.getElementById("datasetSummaryCard");
+        if (dsCard) dsCard.style.display = "none";
+
+        const mWrapper = document.getElementById("metricsChartWrapper");
+        if (mWrapper) mWrapper.style.display = "none";
+
+        setStatus("modelStatus", "Model: Not Trained", "neutral");
+        setStatus("flipStatus",  "Flip: No",           "neutral");
+
+        ["tn", "fp", "fn", "tp"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = "-";
+        });
+
+        const exportBtn = document.getElementById("exportBtn");
+        if (exportBtn) exportBtn.disabled = true;
+
+    } catch (err) {
+        showModal("error", "Reset Error", "Failed to reset UI state.");
+    }
+}
