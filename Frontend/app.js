@@ -166,3 +166,60 @@ async function predict(event) {
         setLoading(btn, false, "", originalText || "Predict");
     }
 }
+
+/* ============================================================
+   CHART HELPERS
+   Each helper is self-contained: destroys old instance,
+   creates new one, and returns the Chart object.
+============================================================ */
+
+/**
+ * Renders a horizontal bar chart of SHAP feature impacts.
+ * Positive values → green, negative → red.
+ * Used for both original and modified case panels.
+ *
+ * @param {string} canvasId - DOM id of the <canvas>
+ * @param {string} key      - key in `charts` registry
+ * @param {Array}  features - [{feature, impact}, …]
+ * @param {string} label    - dataset label string
+ */
+function renderImpactChart(canvasId, key, features, label) {
+    destroyChart(key);
+
+    if (!features || features.length === 0) return;
+
+    const ctx    = document.getElementById(canvasId);
+    if (!ctx)    return;
+
+    const sorted = [...features].sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
+
+    charts[key] = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels:   sorted.map(f => f.feature),
+            datasets: [{
+                label:           label,
+                data:            sorted.map(f => f.impact),
+                backgroundColor: sorted.map(f => f.impact > 0 ? "#22c55e" : "#ef4444"),
+                borderRadius:    4,
+            }]
+        },
+        options: {
+            indexAxis:   "y",       // horizontal bars – easier to read feature names
+            responsive:  true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` Impact: ${ctx.parsed.x.toFixed(4)}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: "SHAP Value (impact on prediction)" }
+                }
+            }
+        }
+    });
+}
