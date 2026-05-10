@@ -223,3 +223,54 @@ function renderImpactChart(canvasId, key, features, label) {
         }
     });
 }
+
+/**
+ * Renders a grouped bar chart comparing approval probability
+ * before and after the modification.
+ *
+ * @param {number} before - probability before (0–100)
+ * @param {number} after  - probability after  (0–100)
+ */
+function renderProbCompareChart(before, after) {
+    destroyChart("probCompare");
+
+    const ctx = document.getElementById("probCompareChart");
+    if (!ctx) return;
+
+    charts.probCompare = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels:   ["Original Case", "Modified Case"],
+            datasets: [
+                {
+                    label:           "Approval Probability (%)",
+                    data:            [before, after],
+                    backgroundColor: [
+                        before >= 50 ? "#22c55e" : "#ef4444",
+                        after  >= 50 ? "#22c55e" : "#ef4444",
+                    ],
+                    borderRadius: 6,
+                    barThickness: 60,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.parsed.y.toFixed(1)}% approval`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min:   0,
+                    max:   100,
+                    title: { display: true, text: "Approval Probability (%)" }
+                }
+            }
+        }
+    });
+}
