@@ -22,3 +22,25 @@ function destroyChart(key) {
         charts[key] = null;
     }
 }
+
+/* =========================
+   GLOBAL FIELD CONFIG
+========================= */
+const fields    = ["age", "income", "credit", "loan", "years"];
+const modFields = ["mod_age", "mod_income", "mod_credit", "mod_loan", "mod_years"];
+
+/* =========================
+   LOADING HANDLER
+========================= */
+function setLoading(btn, state, loadingText, originalText) {
+    if (!btn) return;
+    btn.disabled  = state;
+    btn.innerText = state ? loadingText : originalText;
+}
+
+function setStatus(id, text, type = "neutral") {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className  = `status-badge ${type}`;
+    el.innerText  = text;
+}
