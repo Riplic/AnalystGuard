@@ -677,3 +677,62 @@ function closeModal() {
 function triggerUpload() {
     document.getElementById("csvFile").click();
 }
+
+/* =========================
+   PAGE LOAD — CHECK SERVER STATE
+   Calls /state on startup so the user sees the correct
+   status badge even after a browser refresh.
+========================= */
+async function checkServerState() {
+    try {
+        const res  = await fetch(`${API}/state`);
+        const data = await res.json();
+
+        if (!data.ready) return; // nothing trained yet — leave defaults
+
+        // ── Restore status badge ───────────────────────────────────
+        setStatus("modelStatus", `Model: Trained (${data.filename})`, "good");
+
+        // ── Restore dataset info card ──────────────────────────────
+        document.getElementById("datasetInfo").innerHTML = `
+            <div class="dataset-card">
+                <div><b>📄 File:</b> ${data.filename}</div>
+                <div><b>📊 Rows:</b> ${data.rows}</div>
+                <div><b>📦 Columns:</b> ${data.columns}</div>
+                <div><b>🧠 Features (${data.feature_count}):</b></div>
+                <div style="margin-top:5px;">
+                    ${data.features.map(f => `<span class="feature-tag">${f}</span>`).join(" ")}
+                </div>
+                <div style="margin-top:8px;">
+                    <span class="status-badge good">✓ Model active — ready to predict</span>
+                    ${data.shap_ready
+                        ? `<span class="status-badge good" style="margin-left:6px;">✓ SHAP ready</span>`
+                        : `<span class="status-badge neutral" style="margin-left:6px;">⚠ SHAP unavailable</span>`
+                    }
+                </div>
+            </div>
+        `;
+
+        // ── Restore metrics ────────────────────────────────────────
+        if (data.metrics) {
+            document.getElementById("metricsBox").innerHTML = `
+                Accuracy: ${(data.metrics.accuracy  * 100).toFixed(2)}%<br>
+                Precision: ${(data.metrics.precision * 100).toFixed(2)}%<br>
+                Recall: ${(data.metrics.recall    * 100).toFixed(2)}%<br>
+                F1: ${(data.metrics.f1_score  * 100).toFixed(2)}%
+            `;
+            renderMetricsBarChart(data.metrics);
+        }
+
+        // ── Restore confusion matrix + dataset summary ─────────────
+        loadConfusionMatrix();
+        loadDatasetSummary();
+
+    } catch (err) {
+        // Server not reachable yet — silently skip, user will see "Not Trained"
+        console.warn("Could not reach server on load:", err.message);
+    }
+}
+
+// Run immediately when the page loads
+checkServerState();
