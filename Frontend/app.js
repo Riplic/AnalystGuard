@@ -642,3 +642,38 @@ async function loadConfusionMatrix() {
     document.getElementById("fn").innerText = data.fn;
     document.getElementById("tp").innerText = data.tp;
 }
+
+/* =========================
+   DATASET SUMMARY (REQ #4)
+========================= */
+async function loadDatasetSummary() {
+    try {
+        const res  = await fetch(`${API}/dataset-summary`);
+        const data = await res.json();
+        if (data.error) return;
+        renderDatasetSummaryCharts(data);
+    } catch (err) {
+        // Non-critical – silently skip if endpoint unavailable
+        console.warn("Dataset summary not available:", err.message);
+    }
+}
+
+/* =========================
+   MODAL
+========================= */
+function showModal(type, title, msg) {
+    document.getElementById("appModal").classList.remove("hidden");
+    document.getElementById("modalTitle").innerText   = title;
+    document.getElementById("modalMessage").innerText = msg;
+}
+
+function closeModal() {
+    document.getElementById("appModal").classList.add("hidden");
+}
+
+/* =========================
+   UPLOAD TRIGGER
+========================= */
+function triggerUpload() {
+    document.getElementById("csvFile").click();
+}
