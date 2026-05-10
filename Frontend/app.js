@@ -736,3 +736,39 @@ async function checkServerState() {
 
 // Run immediately when the page loads
 checkServerState();
+
+async function exportPDF(event) {
+    const btn          = event?.target;
+    const originalText = btn?.innerText;
+
+    try {
+        const original = getValues(fields);
+        const modified = getValues(modFields);
+
+        setLoading(btn, true, "Generating PDF...", originalText);
+
+        const res = await fetch(`${API}/export-report-pdf`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ original, modified })
+        });
+
+        if (!res.ok) throw new Error("Failed to generate report");
+
+        const blob = await res.blob();
+        const url  = window.URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+
+        a.href     = url;
+        a.download = "analyst_guard_report.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+        showModal("error", "Export Error", err.message);
+    } finally {
+        setLoading(btn, false, "", originalText || "Export Report (PDF)");
+    }
+}
