@@ -331,3 +331,86 @@ function renderMetricsBarChart(data) {
     const wrapper = document.getElementById("metricsChartWrapper");
     if (wrapper) wrapper.style.display = "block";
 }
+
+/**
+ * Renders the two dataset summary charts:
+ *  1. Doughnut – Approved vs Rejected class distribution
+ *  2. Horizontal bar – mean value per feature
+ *
+ * @param {object} summary - response from /dataset-summary
+ */
+function renderDatasetSummaryCharts(summary) {
+    // --- 1. Class Distribution (doughnut) ---
+    destroyChart("classDist");
+
+    const ctxDist = document.getElementById("classDistChart");
+    if (ctxDist) {
+        charts.classDist = new Chart(ctxDist, {
+            type: "doughnut",
+            data: {
+                labels:   ["Approved", "Rejected"],
+                datasets: [{
+                    data:            [summary.approved, summary.rejected],
+                    backgroundColor: ["#22c55e", "#ef4444"],
+                    hoverOffset:     8,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: "bottom" },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const total = summary.total;
+                                const pct   = ((ctx.parsed / total) * 100).toFixed(1);
+                                return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 2. Feature Averages (horizontal bar) ---
+    destroyChart("featureMean");
+
+    const ctxMean = document.getElementById("featureMeanChart");
+    if (ctxMean && summary.features && summary.feature_means) {
+        const featureLabels = summary.features;
+        const meanValues    = featureLabels.map(f => summary.feature_means[f] ?? 0);
+
+        charts.featureMean = new Chart(ctxMean, {
+            type: "bar",
+            data: {
+                labels:   featureLabels,
+                datasets: [{
+                    label:           "Mean Value",
+                    data:            meanValues,
+                    backgroundColor: "#3b82f6",
+                    borderRadius:    4,
+                }]
+            },
+            options: {
+                indexAxis:  "y",
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` Mean: ${ctx.parsed.x}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: "Mean Value" } }
+                }
+            }
+        });
+    }
+
+    // Show the card
+    const card = document.getElementById("datasetSummaryCard");
+    if (card) card.style.display = "block";
+}
