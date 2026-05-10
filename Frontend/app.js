@@ -547,3 +547,62 @@ async function checkFlip(event) {
 
     document.getElementById("exportBtn").disabled = false;
 }
+
+/* =========================
+   UPLOAD
+========================= */
+async function uploadCSV(event) {
+    const btn  = event?.target;
+    const file = document.getElementById("csvFile").files[0];
+
+    if (!file) return showModal("error", "Upload", "Select file first");
+
+    const originalText = btn?.innerText;
+
+    try {
+        setLoading(btn, true, "Training...", originalText);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res  = await fetch(`${API}/upload`, {
+            method: "POST",
+            body:   formData
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById("datasetInfo").innerHTML = `
+            <div class="dataset-card">
+                <div><b>📄 File:</b> ${data.filename}</div>
+                <div><b>📊 Rows:</b> ${data.rows}</div>
+                <div><b>📦 Columns:</b> ${data.columns}</div>
+                <div><b>🧠 Features (${data.feature_count}):</b></div>
+                <div style="margin-top:5px;">
+                    ${data.features.map(f => `<span class="feature-tag">${f}</span>`).join(" ")}
+                </div>
+                <div style="margin-top:8px;">
+                    <b>🎯 Target:</b>
+                    <span class="status-badge good">
+                        ${data.target_found ? "Found Successfully" : "Missing"}
+                    </span>
+                </div>
+            </div>
+        `;
+
+        showModal("success", "Training Complete", "Model ready");
+        setStatus("modelStatus", "Model: Trained", "good");
+
+        // Load metrics (table + bar chart) and confusion matrix
+        loadMetrics();
+        loadConfusionMatrix();
+
+        // REQ #4: Load dataset summary charts
+        loadDatasetSummary();
+
+    } catch (err) {
+        showModal("error", "Training Error", err.message);
+    } finally {
+        setLoading(btn, false, "", originalText || "Train Model");
+    }
+}
