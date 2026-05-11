@@ -81,6 +81,31 @@ attachValidation(fields);
 attachValidation(modFields);
 
 /* =========================
+   GET VALUES SAFE
+========================= */
+function getValues(list) {
+    return list.map(id => {
+        const el  = document.getElementById(id);
+        if (!el)  throw new Error(`Missing field: ${id}`);
+        const val = el.value.trim();
+        if (val === "")  { setError(id, "Required field");  throw new Error(`${id} required`); }
+        if (isNaN(val))  { setError(id, "Must be numeric"); throw new Error(`${id} must be numeric`); }
+        return Number(val);
+    });
+}
+
+/* =========================
+   SAMPLE DATA
+========================= */
+function useSample() {
+    document.getElementById("age").value    = 30;
+    document.getElementById("income").value = 45000;
+    document.getElementById("credit").value = 650;
+    document.getElementById("loan").value   = 20000;
+    document.getElementById("years").value  = 5;
+}
+
+/* =========================
    RESET (FULL CLEAN STATE)
 ========================= */
 function resetAll() {
@@ -679,6 +704,9 @@ function triggerUpload() {
 }
 
 /* =========================
+   EXPORT PDF REPORT
+========================= */
+/* =========================
    PAGE LOAD — CHECK SERVER STATE
    Calls /state on startup so the user sees the correct
    status badge even after a browser refresh.
@@ -736,6 +764,7 @@ async function checkServerState() {
 
 // Run immediately when the page loads
 checkServerState();
+
 
 async function exportPDF(event) {
     const btn          = event?.target;
