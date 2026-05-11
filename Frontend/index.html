@@ -192,3 +192,51 @@
     <!-- Legacy single impact chart kept for backward compat (hidden once new ones show) -->
     <canvas id="impactChart" style="display:none;"></canvas>
 </div>
+
+<!-- =========================
+     SECTION 6 - MODEL PERFORMANCE
+     Supervisor req #3: performance bar chart + confusion matrix
+========================= -->
+<div class="card">
+    <h3>5. Model Performance</h3>
+
+    <button onclick="loadMetrics()">Refresh Metrics</button>
+    <div id="metricsBox"></div>
+
+    <!-- NEW: Model metrics bar chart -->
+    <div id="metricsChartWrapper" style="display:none; margin-top:20px;">
+        <h4 class="chart-label">Performance Metrics</h4>
+        <canvas id="metricsBarChart"></canvas>
+    </div>
+
+    <h3 style="margin-top:20px;">Confusion Matrix</h3>
+
+    <div class="cm-wrapper">
+        <div></div>
+        <div class="cm-label">Pred No</div>
+        <div class="cm-label">Pred Yes</div>
+
+        <div class="cm-label">Actual No</div>
+        <div id="tn" class="cm-cell good">-</div>
+        <div id="fp" class="cm-cell bad">-</div>
+
+        <div class="cm-label">Actual Yes</div>
+        <div id="fn" class="cm-cell bad">-</div>
+        <div id="tp" class="cm-cell good">-</div>
+    </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="appModal" class="modal hidden">
+    <div class="modal-content">
+        <h3 id="modalTitle"></h3>
+        <p id="modalMessage"></p>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script src="/frontend/app.js"></script>
+</body>
+</html>
