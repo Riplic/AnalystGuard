@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analyst Guard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="bg-animation"></div>
+
+<div class="container">
+
+<!-- =========================
+     SECTION 1 - OVERVIEW
+========================= -->
+<div class="card">
+    <h1 class="app-title">Analyst Guard</h1>
+    <p class="app-subtitle">Explainable AI Decision Intelligence Platform</p>
+
+    <p class="info-text">
+        This system predicts financial decisions and explains why decisions change when inputs are modified using SHAP-based explainability.
+    </p>
+    <div class="status-row">
+        <span id="modelStatus" class="status-badge neutral">⏳ Checking model status...</span>
+        <span id="flipStatus" class="status-badge neutral">Flip: No</span>
+    </div>
+</div>
+
+<!-- =========================
+     SECTION 1.1 - HOW IT WORKS
+========================= -->
+<div class="card">
+    <h3>How it works</h3>
+
+    <div class="info-text">
+        <ul style="margin:0; padding-left:18px; line-height:1.8;">
+            <li>Upload a CSV dataset containing a target column</li>
+            <li>Train a Logistic Regression model on the dataset</li>
+            <li>Enter applicant financial details for prediction</li>
+            <li>Modify values to test decision changes (flip analysis)</li>
+            <li>View explainability results using SHAP feature impact</li>
+        </ul>
+    </div>
+</div>
+
+<!-- =========================
+     SECTION 2 - UPLOAD
+========================= -->
+<div class="card">
+    <h3>1. Upload & Train Model</h3>
+
+    <input type="file" id="csvFile" hidden>
+
+    <div class="upload-card" onclick="triggerUpload()">
+        <p class="upload-title">Upload Dataset</p>
+        <p class="upload-sub">CSV must contain "target" column</p>
+    </div>
+
+    <button onclick="uploadCSV(event)">Train Model</button>
+    <button onclick="resetAll()">Reset All</button>
+
+    <div id="datasetInfo" class="dataset-info"></div>
+</div>
