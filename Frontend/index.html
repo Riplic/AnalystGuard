@@ -127,3 +127,68 @@
     <div id="prediction"></div>
     <div id="probabilityBox"></div>
 </div>
+
+<!-- =========================
+     SECTION 4 - FLIP ANALYSIS
+========================= -->
+<div class="card">
+    <h3>3. Decision Flip Analysis</h3>
+
+    <div class="form-grid">
+        <div class="field"><input id="mod_age" placeholder="Modified Age"><small class="error-text"></small></div>
+        <div class="field"><input id="mod_income" placeholder="Modified Income"><small class="error-text"></small></div>
+        <div class="field"><input id="mod_credit" placeholder="Modified Credit"><small class="error-text"></small></div>
+        <div class="field"><input id="mod_loan" placeholder="Modified Loan Amount"><small class="error-text"></small></div>
+        <div class="field"><input id="mod_years" placeholder="Modified Years"><small class="error-text"></small></div>
+    </div>
+
+    <button onclick="checkFlip(event)">Analyze Decision</button>
+</div>
+
+<!-- =========================
+     SECTION 5 - RESULTS
+========================= -->
+<div class="card">
+    <h3>4. Results & Explanation</h3>
+    <div style="margin-top:15px; text-align:right;">
+        <button id="exportBtn" onclick="exportPDF(event)" disabled>
+            Export Report (PDF)
+        </button>
+    </div>
+    <div id="comparisonPanel"></div>
+    <div id="flipResult"></div>
+
+    <!-- ── FEATURE IMPACT CHARTS (NEW) ─────────────────────────────
+         Supervisor req #1: Feature impact chart
+         Supervisor req #2: Original vs Modified comparison
+    ──────────────────────────────────────────────────────────────── -->
+    <div id="featureChartsPanel" style="display:none;">
+        <div class="chart-section-title">Feature Impact Analysis</div>
+        <p class="info-text" style="margin-bottom:12px;">
+            SHAP values show how much each feature pushed the prediction toward Approved (+) or Rejected (−).
+        </p>
+
+        <div class="chart-row">
+            <!-- Original Case -->
+            <div class="chart-half">
+                <h4 class="chart-label">Original Case — Feature Impact</h4>
+                <canvas id="originalImpactChart"></canvas>
+            </div>
+
+            <!-- Modified Case -->
+            <div class="chart-half">
+                <h4 class="chart-label">Modified Case — Feature Impact</h4>
+                <canvas id="modifiedImpactChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Probability Before vs After (req #2 sub-chart) -->
+        <div class="chart-single" style="margin-top:24px;">
+            <h4 class="chart-label">Approval Probability: Before vs After</h4>
+            <canvas id="probCompareChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Legacy single impact chart kept for backward compat (hidden once new ones show) -->
+    <canvas id="impactChart" style="display:none;"></canvas>
+</div>
