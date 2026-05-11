@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+    font-family: Arial;
+    padding: 30px;
+    color: #1e293b;
+}
+
+h1 {
+    text-align: center;
+    color: #4f46e5;
+}
+
+.section {
+    margin-top: 25px;
+}
+
+.box {
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.good { color: green; }
+.bad { color: red; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+td, th {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 8px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Analyst Guard Report</h1>
+
+<div class="section">
+    <b>Date:</b> {{timestamp}}<br>
+    <b>Dataset:</b> {{dataset}}
+</div>
+
+<div class="section">
+    <h3>Inputs</h3>
+    <div class="box">
+        <b>Original:</b> {{original}}<br>
+        <b>Modified:</b> {{modified}}
+    </div>
+</div>
+
+<div class="section">
+    <h3>Predictions</h3>
+    <div class="box">
+        Before: <b>{{before_label}}</b> ({{before_prob}}%)<br>
+        After: <b>{{after_label}}</b> ({{after_prob}}%)
+    </div>
+</div>
