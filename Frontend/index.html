@@ -65,3 +65,65 @@
 
     <div id="datasetInfo" class="dataset-info"></div>
 </div>
+
+<!-- =========================
+     SECTION 2.1 - DATASET SUMMARY CHART (NEW)
+     Supervisor req #4: class distribution + feature overview
+========================= -->
+<div class="card" id="datasetSummaryCard" style="display:none;">
+    <h3>Dataset Summary</h3>
+    <p class="info-text">Overview of class distribution and feature averages in the loaded dataset.</p>
+
+    <div class="chart-row">
+        <div class="chart-half">
+            <h4 class="chart-label">Class Distribution</h4>
+            <canvas id="classDistChart"></canvas>
+        </div>
+        <div class="chart-half">
+            <h4 class="chart-label">Feature Averages</h4>
+            <canvas id="featureMeanChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- =========================
+     SECTION 3 - INPUT
+========================= -->
+<div class="card">
+    <h3>2. Input Data</h3>
+
+    <div class="form-grid">
+        <div class="field">
+            <input id="age" placeholder="Age">
+            <small class="error-text"></small>
+        </div>
+
+        <div class="field">
+            <input id="income" placeholder="Income">
+            <small class="error-text"></small>
+        </div>
+
+        <div class="field">
+            <input id="credit" placeholder="Credit Score">
+            <small class="error-text"></small>
+        </div>
+
+        <div class="field">
+            <input id="loan" placeholder="Loan Amount">
+            <small class="error-text"></small>
+        </div>
+
+        <div class="field">
+            <input id="years" placeholder="Years Employed">
+            <small class="error-text"></small>
+        </div>
+    </div>
+
+    <div class="row">
+        <button onclick="useSample()">Use Sample</button>
+        <button onclick="predict(event)">Predict</button>
+    </div>
+
+    <div id="prediction"></div>
+    <div id="probabilityBox"></div>
+</div>
